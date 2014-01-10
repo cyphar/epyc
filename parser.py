@@ -37,6 +37,7 @@ class Parser:
 			if not expr or self.peek() != "}}":
 				raise ParseError("error parsing expression")
 
+			self.next()
 			return expr
 		if self.peek() == "{%":
 			self.next()
@@ -68,7 +69,7 @@ class Parser:
 
 				raise ParseException("wrong number of arguments to {% include <file> %}")
 
-			if tp == "for":
+			elif tp == "for":
 				# {% for <var> in <expr> %}
 				slen = len('in')
 				sep = args.find("in")
@@ -78,7 +79,7 @@ class Parser:
 
 				var, expr = args[:sep].strip(), args[sep + slen:].strip()
 
-				block = self._parse_group("end for")
+				block = self._parse_group(["end for"])
 				node = render.ForNode(var, expr, block)
 
 				if not self._check_end(["end for"]):
@@ -86,10 +87,11 @@ class Parser:
 
 				self.next(3)
 				return node
-
 		# text
 		else:
-			return render.TextNode(self.peek())
+			text = self.peek()
+			self.next()
+			return render.TextNode(text)
 
 	def _check_end(self, ends):
 		if not ends:
@@ -109,7 +111,6 @@ class Parser:
 			if self.tokens[pos] != "%}":
 				return False
 
-
 			return tag in ends
 
 	def _parse_group(self, ends=None):
@@ -117,7 +118,6 @@ class Parser:
 
 		while not self.end() and not self._check_end(ends):
 			groups.append(self._parse_token())
-			self.next()
 
 		groups = [group for group in groups if group]
 		return render.GroupNode(groups)
