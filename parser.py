@@ -19,9 +19,9 @@ class Parser:
 		if not self.end():
 			return self.tokens[self.pos]
 
-	def next(self):
+	def next(self, num=1):
 		if not self.end():
-			self.pos += 1
+			self.pos += num
 
 	def _parse_token(self):
 		if self.end():
@@ -50,23 +50,72 @@ class Parser:
 			if not tag:
 				raise ParseException("no type information for {% tag %}")
 
+			self.next()
+			if self.peek() != "%}":
+				raise ParseException("too many tokens in {% tag %}")
+
+			self.next()
+
 			tp = tag[0]
-			args = tag[1:]
+			args = " ".join(tag[1:])
 
 			if tp == "include":
+				args = args.split()
+
 				if len(args) == 1:
 					ret = render.IncludeNode(args[0])
 					return ret
 
 				raise ParseException("wrong number of arguments to {% include <file> %}")
+
+			if tp == "for":
+				# {% for <var> in <expr> %}
+				slen = len('in')
+				sep = args.find("in")
+
+				if sep < 0:
+					raise ParseException("missing 'in' in {% for <var> in <expr> %}")
+
+				var, expr = args[:sep].strip(), args[sep + slen:].strip()
+
+				block = self._parse_group("end for")
+				node = render.ForNode(var, expr, block)
+
+				if not self._check_end(["end for"]):
+					raise ParseException("missing {% end for %}")
+
+				self.next(3)
+				return node
+
 		# text
 		else:
 			return render.TextNode(self.peek())
 
-	def _parse_group(self):
+	def _check_end(self, ends):
+		if not ends:
+			return False
+
+		pos = self.pos
+
+		if self.length - pos < 3:
+			return False
+
+		if self.tokens[pos] == "{%":
+			pos += 1
+			tag = self.tokens[pos].split()
+			tag = " ".join([item.strip() for item in tag])
+
+			pos += 1
+			if self.tokens[pos] != "%}":
+				return False
+
+
+			return tag in ends
+
+	def _parse_group(self, ends=None):
 		groups = []
 
-		while not self.end():
+		while not self.end() and not self._check_end(ends):
 			groups.append(self._parse_token())
 			self.next()
 
