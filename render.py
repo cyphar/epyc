@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import html
+from epyc import epyc
 
 def sanitise(string):
   return html.escape(string)
@@ -47,17 +48,14 @@ class TextNode(Node):
 
 class IncludeNode(Node):
   def __init__(self, path):
-    super().__init__([], path)
+    self.path = path
 
-  def render(self, scope):
+  def render(self, scope={}):
     "Return rendered content from file at path"
     with open(self.path) as f:
       content = f.read()
       content = epyc(content, scope)
     return content
-
-def epyc(content, scope):
-  pass
 
 
 class ForNode(Node):
@@ -66,7 +64,7 @@ class ForNode(Node):
     self.expression = expression
     self.block = block
 
-  def render(self, scope):
+  def render(self, scope={}):
     ret = ''
 
     for item in eval(self.expression):
@@ -79,7 +77,7 @@ class ExprNode(Node):
   def __init__(self, content):
     super().__init__([], content)
 
-  def render(self, scope):
+  def render(self, scope={}):
     "Return evaluated content or None"
     try:
       return eval(self.content, {}, scope)
@@ -93,7 +91,7 @@ class IfNode(Node):
     self.elsenode = elsenode
     self.condition = condition
 
-  def render(self, scope):
+  def render(self, scope={}):
     if eval(self.condition, {}, scope):
       return self.ifnode.render()
     elif self.elsenode:
