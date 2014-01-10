@@ -2,6 +2,9 @@
 
 import render
 
+class ParseException(Exception):
+	pass
+
 class Parser:
 	"Main parsing class."
 	def __init__(self, tokens):
@@ -12,9 +15,9 @@ class Parser:
 	def end(self):
 		return self.pos == self.length
 
-	def peek(self, num=1):
+	def peek(self):
 		if not self.end():
-			return self.tokens[self.pos:self.pos + num]
+			return self.tokens[self.pos]
 
 	def next(self):
 		if not self.end():
@@ -35,6 +38,27 @@ class Parser:
 				raise ParseError("error parsing expression")
 
 			return expr
+		if self.peek() == "{%":
+			self.next()
+
+			if self.end():
+				raise ParseException("missing closing {% tag %}")
+
+			tag = self.peek().strip().split()
+
+			# only {% %} -- no information
+			if not tag:
+				raise ParseException("no type information for {% tag %}")
+
+			tp = tag[0]
+			args = tag[1:]
+
+			if tp == "include":
+				if len(args) == 1:
+					ret = render.IncludeNode(args[0])
+					return ret
+
+				raise ParseException("wrong number of arguments to {% include <file> %}")
 		# text
 		else:
 			return render.TextNode(self.peek())
