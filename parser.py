@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from render import *
+import render
 
 class Parser:
 	"Main parsing class."
@@ -28,7 +28,7 @@ class Parser:
 		if self.peek() == "{{":
 			self.next()
 
-			expr = ExprNode(self.peek())
+			expr = render.ExprNode(self.peek())
 			self.next()
 
 			if not expr or self.peek() != "}}":
@@ -37,7 +37,7 @@ class Parser:
 			return expr
 		# text
 		else:
-			return TextNode(self.peek())
+			return render.TextNode(self.peek())
 
 	def _parse_group(self):
 		groups = []
@@ -47,7 +47,7 @@ class Parser:
 			self.next()
 
 		groups = [group for group in groups if group]
-		return GroupNode(groups)
+		return render.GroupNode(groups)
 
 	def parse(self):
 		# EBNF for epyc:
