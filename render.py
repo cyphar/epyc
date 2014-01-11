@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import html
-from epyc import epyc
+from epyc import render
 
 def sanitise(string):
 	return html.escape(string)
@@ -52,10 +52,7 @@ class IncludeNode(Node):
 
 	def render(self, scope={}):
 		"Return rendered content from file at path"
-		with open(self.path) as f:
-			content = f.read()
-			content = epyc(content, scope)
-		return content
+		return render(self.path, scope)
 
 class ForNode(Node):
 	def __init__(self, identifier, expression, block):
@@ -69,6 +66,8 @@ class ForNode(Node):
 		for item in eval(self.expression, {}, scope):
 			scope[self.identifier] = item
 			ret += self.block.render(scope) or ''
+			print(scope)
+
 		return ret
 
 

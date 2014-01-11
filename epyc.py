@@ -3,7 +3,12 @@
 import tokeniser
 import parser
 
-def epyc(content, scope={}):
+def render(fname, scope={}):
+	with open(fname) as f:
+		content = f.read()
+	return _render(content, scope)
+
+def _render(content, scope={}):
 	return parser.Parser(tokeniser.tokenise(content)).parse().render(scope)
 
 if __name__ == "__main__":
