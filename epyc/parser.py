@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import render
+from . import render
 
 class ParseException(Exception):
     pass

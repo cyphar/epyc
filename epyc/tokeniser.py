@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 def find_token(string, upto, token):
     # search for }} if not found then throw exception
     for i in range(upto, len(string)-1):
@@ -7,8 +9,6 @@ def find_token(string, upto, token):
             # found string
             return i
     raise Exception('Tokeniser failed to find matching end token! Start token {} at {} missing end token {}'.format(string[upto-2:upto], upto - 2, token))
-
-
 
 def tokenise(template_string):
     # return a list of tokens

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import html
-from epyc import render
 
 def sanitise(string):
     return html.escape(str(string))

@@ -1,26 +1,16 @@
 #!/usr/bin/env python3
 
-import tokeniser
-import parser
-
-def render(fname, scope={}):
-    with open(fname) as f:
-        content = f.read()
-    return _render(content, scope)
-
-def _render(content, scope={}):
-    return parser.Parser(tokeniser.tokenise(content)).parse().render(scope)
+import sys
+import epyc
 
 if __name__ == "__main__":
-    import sys
-
     if len(sys.argv) > 1:
         with open(sys.argv[1]) as f:
             string = f.read()
     else:
         string = "\n".join(iter(input, ""))
 
-    print(_render(string, {"a": [1, 2, 3]}))
+    print(epyc._render(string, {"a": [1, 2, 3]}))
 
 # Node Testing
     #import render
