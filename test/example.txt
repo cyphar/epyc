@@ -1,0 +1,23 @@
+{% include header.txt %}
+
+{% for i in range(20) %}
+{% if i % 2 %}
+odd: {{i}}
+{% else %}
+even: {{i}}
+{% end if %}
+{% end for %}
+
+{% if 5 > 4 %}
+Printed.
+{% else %}
+*** NOT PRINTED (5 > 4 else).
+{% end if %}
+
+{% if 3 > 4 %}
+*** NOT PRINTED (3 > 4 if).
+{% else %}
+Printed.
+{% end if %}
+
+{% include footer.txt %}
