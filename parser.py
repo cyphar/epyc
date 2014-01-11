@@ -89,17 +89,20 @@ class Parser:
 				return node
 			elif tp == "if":
 				# {% if <pred> %}
-
 				if not args:
 					raise ParseException("no predicate for 'if' condition")
 
 				predicate = args
-				ifblock = self._parse_group(["end if"])
+				ifblock = self._parse_group(["end if", "else"])
+				elseblock = None
 
-				node = render.IfNode(predicate, ifblock)
+				if self._check_end(["else"]):
+					elseblock = self._parse_group(["end if"])
+
+				node = render.IfNode(predicate, ifblock, elseblock)
 
 				if not self._check_end(["end if"]):
-					raise ParseException("missing {% end if $}")
+					raise ParseException("missing {% end if %}")
 
 				self.next(3)
 				return node
