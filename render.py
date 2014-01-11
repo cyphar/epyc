@@ -4,7 +4,7 @@ import html
 from epyc import render
 
 def sanitise(string):
-	return html.escape(string)
+	return html.escape(str(string))
 
 class ParseError(Exception):
 	pass
@@ -66,7 +66,6 @@ class ForNode(Node):
 		for item in eval(self.expression, {}, scope):
 			scope[self.identifier] = item
 			ret += self.block.render(scope) or ''
-			print(scope)
 
 		return ret
 
@@ -77,10 +76,7 @@ class ExprNode(Node):
 
 	def render(self, scope={}):
 		"Return evaluated content or None"
-		try:
-			return sanitise(eval(self.content, {}, scope))
-		except:
-			return None
+		return sanitise(eval(self.content, {}, scope))
 
 
 class IfNode(Node):
@@ -91,6 +87,6 @@ class IfNode(Node):
 
 	def render(self, scope={}):
 		if eval(self.condition, {}, scope):
-			return self.ifnode.render()
+			return self.ifnode.render(scope)
 		elif self.elsenode:
-			return self.elsenode.render()
+			return self.elsenode.render(scope)
