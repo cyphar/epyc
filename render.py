@@ -79,7 +79,7 @@ class ExprNode(Node):
 	def render(self, scope={}):
 		"Return evaluated content or None"
 		try:
-			return eval(self.content, {}, scope)
+			return sanitise(eval(self.content, {}, scope))
 		except:
 			return None
 
