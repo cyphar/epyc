@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import html
+import epyc
 
 def sanitise(string):
     return html.escape(str(string))
@@ -51,7 +52,7 @@ class IncludeNode(Node):
 
     def render(self, scope={}):
         "Return rendered content from file at path"
-        return render(self.path, scope)
+        return epyc.render(self.path, scope)
 
 class ForNode(Node):
     def __init__(self, identifier, expression, block):
