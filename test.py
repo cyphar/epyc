@@ -5,12 +5,10 @@ import epyc
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        with open(sys.argv[1]) as f:
-            string = f.read()
+        print(epyc.render(sys.argv[1]))
     else:
         string = "\n".join(iter(input, ""))
-
-    print(epyc._render(string, {"a": [1, 2, 3]}))
+        print(epyc._render(string, {"a": [1, 2, 3]}))
 
 # Node Testing
     #import render

@@ -16,7 +16,7 @@ class Node:
     def __init__(self):
         pass
 
-    def render(self):
+    def render(self, scope={}, path="."):
         raise NotImplementedError("node meta-class cannot be evaluated")
 
 
@@ -24,12 +24,12 @@ class GroupNode(Node):
     def __init__(self, children):
         self.children = children
 
-    def render(self, scope={}):
+    def render(self, scope={}, path="."):
         "Render all children in group."
         ret = ""
 
         for child in self.children:
-            render = child.render(scope)
+            render = child.render(scope, path)
             if render is None:
                 render = ""
             ret += str(render)
@@ -40,7 +40,7 @@ class TextNode(Node):
     def __init__(self, content):
         self.content = content
 
-    def render(self, scope={}):
+    def render(self, scope={}, path="."):
         "Render sanitised content"
         return self.content
 
@@ -49,9 +49,9 @@ class IncludeNode(Node):
     def __init__(self, path):
         self.path = path
 
-    def render(self, scope={}):
+    def render(self, scope={}, path="."):
         "Return rendered content from file at path"
-        return epyc.render(self.path, scope)
+        return epyc.render(path + "/" + self.path, scope)
 
 class ForNode(Node):
     def __init__(self, identifier, expression, block):
@@ -59,12 +59,12 @@ class ForNode(Node):
         self.expression = expression
         self.block = block
 
-    def render(self, scope={}):
+    def render(self, scope={}, path="."):
         ret = ''
 
         for item in eval(self.expression, {}, scope):
             scope[self.identifier] = item
-            ret += self.block.render(scope) or ''
+            ret += self.block.render(scope, path) or ''
 
         return ret
 
@@ -73,19 +73,19 @@ class ExprNode(Node):
     def __init__(self, content):
         self.content = content
 
-    def render(self, scope={}):
+    def render(self, scope={}, path="."):
         "Return evaluated content or None"
         return sanitise(eval(self.content, {}, scope))
 
 
 class IfNode(Node):
-    def __init__(self, condition, ifnode, elsenode = None):
+    def __init__(self, condition, ifnode, elsenode=None):
         self.ifnode = ifnode
         self.elsenode = elsenode
         self.condition = condition
 
-    def render(self, scope={}):
+    def render(self, scope={}, path="."):
         if eval(self.condition, {}, scope):
-            return self.ifnode.render(scope)
+            return self.ifnode.render(scope, path)
         elif self.elsenode:
-            return self.elsenode.render(scope)
+            return self.elsenode.render(scope, path)
