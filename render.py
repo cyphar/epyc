@@ -43,7 +43,7 @@ class TextNode(Node):
 
 	def render(self, scope={}):
 		"Render sanitised content"
-		return sanitise(self.content)
+		return self.content
 
 
 class IncludeNode(Node):
@@ -66,7 +66,7 @@ class ForNode(Node):
 	def render(self, scope={}):
 		ret = ''
 
-		for item in eval(self.expression):
+		for item in eval(self.expression, {}, scope):
 			scope[self.identifier] = item
 			ret += self.block.render(scope) or ''
 		return ret
