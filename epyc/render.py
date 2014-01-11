@@ -13,9 +13,8 @@ class ParseError(Exception):
 # Used in the parsing and evaluation to define the syntax tree.
 class Node:
     "Node meta-class."
-    def __init__(self, children, content):
-        self.children = children
-        self.content = content
+    def __init__(self):
+        pass
 
     def render(self):
         raise NotImplementedError("node meta-class cannot be evaluated")
@@ -23,7 +22,7 @@ class Node:
 
 class GroupNode(Node):
     def __init__(self, children):
-        super().__init__(children, None)
+        self.children = children
 
     def render(self, scope={}):
         "Render all children in group."
@@ -39,7 +38,7 @@ class GroupNode(Node):
 
 class TextNode(Node):
     def __init__(self, content):
-        super().__init__([], content)
+        self.content = content
 
     def render(self, scope={}):
         "Render sanitised content"
@@ -72,7 +71,7 @@ class ForNode(Node):
 
 class ExprNode(Node):
     def __init__(self, content):
-        super().__init__([], content)
+        self.content = content
 
     def render(self, scope={}):
         "Return evaluated content or None"
