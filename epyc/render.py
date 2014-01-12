@@ -62,7 +62,12 @@ class ForNode(Node):
     def render(self, scope={}, path="."):
         ret = ''
 
-        for item in eval(self.expression, {}, scope):
+        try:
+            L = eval(self.expression, {}, scope)
+        except:
+            return None
+
+        for item in L:
             scope[self.identifier] = item
             ret += self.block.render(scope, path) or ''
 
@@ -75,7 +80,12 @@ class ExprNode(Node):
 
     def render(self, scope={}, path="."):
         "Return evaluated content or None"
-        return sanitise(eval(self.content, {}, scope))
+        try:
+            val = eval(self.content, {}, scope)
+        except:
+            return None
+
+        return sanitise(val)
 
 
 class IfNode(Node):
@@ -85,7 +95,12 @@ class IfNode(Node):
         self.condition = condition
 
     def render(self, scope={}, path="."):
-        if eval(self.condition, {}, scope):
+        try:
+            cond = eval(self.condition, {}, scope)
+        except:
+            return self.elsenode.render(scope, path)
+
+        if cond:
             return self.ifnode.render(scope, path)
         elif self.elsenode:
             return self.elsenode.render(scope, path)
