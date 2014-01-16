@@ -68,7 +68,12 @@ class ForNode(Node):
             return None
 
         for item in L:
-            scope[self.identifier] = item
+            try:
+                getnext = "%s = %r" % (self.identifier, item)
+                exec(getnext, {}, scope)
+            except:
+                return None
+
             ret += self.block.render(scope, path) or ''
 
         return ret

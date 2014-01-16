@@ -20,4 +20,10 @@ Printed.
 Printed.
 {% end if %}
 
+
+{% for a, b in [(1, 2), [2, 3]]%}
+a: {{ a }}
+b: {{ b }}
+{% end for %}
+
 {% include footer.txt %}
