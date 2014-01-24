@@ -20,7 +20,7 @@ class Node:
 	def __init__(self):
 		pass
 
-	def render(self, scope={}, path="."):
+	def render(self, context={}, path="."):
 		raise NotImplementedError("node meta-class cannot be evaluated")
 
 
@@ -28,15 +28,15 @@ class GroupNode(Node):
 	def __init__(self, children):
 		self.children = children
 
-	def render(self, scope=None, path="."):
+	def render(self, context=None, path="."):
 		"Render all children in group."
 
 		# Scope this spruce goose.
-		scope = Scope(parent=scope)
+		context = Scope(parent=context)
 
 		ret = ""
 		for child in self.children:
-			render = child.render(scope, path) or ""
+			render = child.render(context, path) or ""
 			ret += str(render)
 
 		return ret
@@ -46,7 +46,7 @@ class TextNode(Node):
 	def __init__(self, content):
 		self.content = content
 
-	def render(self, scope={}, path="."):
+	def render(self, context={}, path="."):
 		"Render sanitised content"
 		return self.content
 
@@ -55,9 +55,9 @@ class IncludeNode(Node):
 	def __init__(self, path):
 		self.path = path
 
-	def render(self, scope=None, path="."):
+	def render(self, context=None, path="."):
 		"Return rendered content from file at path"
-		return epyc.render(path + "/" + self.path, scope)
+		return epyc.render(path + "/" + self.path, context)
 
 class ForNode(Node):
 	def __init__(self, identifier, expression, block):
@@ -65,22 +65,22 @@ class ForNode(Node):
 		self.expression = expression
 		self.block = block
 
-	def render(self, scope={}, path="."):
+	def render(self, context={}, path="."):
 		ret = ''
 
 		try:
-			L = eval(self.expression, {}, scope)
+			L = eval(self.expression, {}, context)
 		except:
 			return None
 
 		for item in L:
 			try:
 				getnext = "%s = __item__" % self.identifier
-				exec(getnext, {"__item__": item}, scope)
+				exec(getnext, {"__item__": item}, context)
 			except:
 				return None
 
-			ret += self.block.render(scope, path) or ''
+			ret += self.block.render(context, path) or ''
 
 		return ret
 
@@ -90,11 +90,11 @@ class LetNode(Node):
 		self.identifier = identifier
 		self.expression = expression
 
-	def render(self, scope={}, path="."):
+	def render(self, context={}, path="."):
 		code = "%s = %s" % (self.identifier, self.expression)
 
 		try:
-			exec(code, {}, scope)
+			exec(code, {}, context)
 		except:
 			pass
 
@@ -104,10 +104,10 @@ class ExprNode(Node):
 	def __init__(self, content):
 		self.content = content
 
-	def render(self, scope={}, path="."):
+	def render(self, context={}, path="."):
 		"Return evaluated content or None"
 		try:
-			val = eval(self.content, {}, scope)
+			val = eval(self.content, {}, context)
 		except:
 			return None
 
@@ -118,10 +118,10 @@ class ExecNode(Node):
 	def __init__(self, content):
 		self.content = content
 
-	def render(self, scope={}, path="."):
+	def render(self, context={}, path="."):
 		"Execute a statment. Always returns None."
 		try:
-			exec(self.content, {}, scope)
+			exec(self.content, {}, context)
 		except:
 			pass
 
@@ -131,15 +131,15 @@ class IfNode(Node):
 		# [(cond, node), ...] in order of
 		self.nodes = nodes
 
-	def render(self, scope={}, path="."):
+	def render(self, context={}, path="."):
 		for condition, node in self.nodes:
 			if not condition:
-				return node.render(scope, path)
+				return node.render(context, path)
 
 			try:
-				cond = eval(condition, {}, scope)
+				cond = eval(condition, {}, context)
 			except:
 				cond = False
 
 			if cond:
-				return node.render(scope, path)
+				return node.render(context, path)
