@@ -1,0 +1,8 @@
+(inside include block)
+
+(global a within include block) "global" == "{{ a }}"
+
+{% let a = "include" %}
+(set global a within include block) "include" == "{{ a }}"
+
+(leaving include block)

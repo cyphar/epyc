@@ -1,0 +1,6 @@
+(inside include block)
+
+{% let b = "include" %}
+(set local b within include block) "include" == "{{ b }}"
+
+(leaving include block)

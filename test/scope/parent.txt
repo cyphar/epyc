@@ -1,0 +1,86 @@
+======================
+MODIFYING GLOBAL SCOPE
+======================
+
+{% let a = "global" %}
+(set global a) "global" = "{{ a }}"
+
+{% if True %}
+	(global a from if block) "global" == "{{ a }}"
+
+	{# setting globals from local scope #}
+	{% let a = "if block" %}
+	(set global a from if block) "if block" == "{{ a }}"
+{% end if %}
+
+(global a modified by if block) "if block" == "{{ a }}"
+
+{% let a = "global" %}
+(set global a) "global" == "{{ a }}"
+
+{% for a in [1, 2, 3] %}
+	-- unused for block --
+{% end for %}
+
+(global a modified by for statement) "3" == "{{ a }}"
+
+{% let a = "global" %}
+(set global a) "global" == "{{ a }}"
+
+{% for i in ["first_for", "second_for", "last_for"] %}
+	{% let a = i %}
+	(set global a from for block) "{{ i }}" == "{{ a }}"
+{% end for %}
+
+(global a modified by for block) "last_for" == "{{ a }}"
+
+{% let a = "global" %}
+(set global a) "global" == "{{ a }}"
+
+(include file)
+{% include global.txt %}
+(end include)
+
+(global a modified by include statement) "include" == "{{ a }}"
+
+===========
+LOCAL SCOPE
+===========
+
+(undefined global b) "" = "{{ b }}"
+
+{% if b or not b %}
+	SHOULD NOT PRINT IF B IS undefined!!!
+{% end if %}
+
+{% if True %}
+	{% let b = "if block" %}
+	(set local b in if block) "if block" == "{{ b }}"
+{% end if %}
+
+(undefined global b) "" = "{{ b }}"
+
+{% if b or not b %}
+	SHOULD NOT PRINT IF B IS undefined!!!
+{% end if %}
+
+{% for i in [1, 2, 3] %}
+	{% let b = i %}
+	(set local b in for block) "{{ i }}" == "{{ b }}"
+{% end for %}
+
+(undefined global b) "" = "{{ b }}"
+
+{% if b or not b %}
+	SHOULD NOT PRINT IF B IS undefined!!!
+{% end if %}
+
+(include file)
+{% include local.txt %}
+(end include)
+
+(undefined global b) "" = "{{ b }}"
+
+{% if b or not b %}
+	SHOULD NOT PRINT IF B IS undefined!!!
+{% end if %}
