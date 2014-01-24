@@ -136,6 +136,13 @@ class Parser:
 					raise ParseException("too many '=' in {% let <expr> = <expr> %}")
 
 				return render.LetNode(var.strip(), expr.strip())
+
+			elif tp == "exec":
+				if not args:
+					raise ParseException("no arguments to {% exec <expr> %} block")
+
+				return render.ExecNode(args)
+
 		# text
 		else:
 			text = self.peek()

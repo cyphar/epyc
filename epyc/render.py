@@ -108,6 +108,18 @@ class ExprNode(Node):
 		return sanitise(val)
 
 
+class ExecNode(Node):
+	def __init__(self, content):
+		self.content = content
+
+	def render(self, scope={}, path="."):
+		"Execute a statment. Always returns None."
+		try:
+			exec(self.content, {}, scope)
+		except:
+			pass
+
+
 class IfNode(Node):
 	def __init__(self, nodes):
 		# [(cond, node), ...] in order of
