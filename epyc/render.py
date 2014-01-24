@@ -3,11 +3,15 @@
 import html
 import epyc
 
+from .scope import Scope
+
 def sanitise(string):
 	return html.escape(str(string))
 
+
 class ParseError(Exception):
 	pass
+
 
 # Node Classes
 # Used in the parsing and evaluation to define the syntax tree.
@@ -24,15 +28,17 @@ class GroupNode(Node):
 	def __init__(self, children):
 		self.children = children
 
-	def render(self, scope={}, path="."):
+	def render(self, scope=None, path="."):
 		"Render all children in group."
-		ret = ""
 
+		# Scope this spruce goose.
+		scope = Scope(parent=scope)
+
+		ret = ""
 		for child in self.children:
-			render = child.render(scope, path)
-			if render is None:
-				render = ""
+			render = child.render(scope, path) or ""
 			ret += str(render)
+
 		return ret
 
 
@@ -49,7 +55,7 @@ class IncludeNode(Node):
 	def __init__(self, path):
 		self.path = path
 
-	def render(self, scope={}, path="."):
+	def render(self, scope=None, path="."):
 		"Return rendered content from file at path"
 		return epyc.render(path + "/" + self.path, scope)
 
