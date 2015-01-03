@@ -9,7 +9,7 @@ but was written from scratch for the NCSS 2014 summer school to learn about CFGs
 ## License ##
 ```
 epyc: python-like templating langauge (Embedded PYthon Code)
-Copyright (C) 2014 Cyphar
+Copyright (C) 2014, 2015 Cyphar
 Copyright (C) 2014 JoshLeeb
 Copyright (C) 2014 Peter Brock
 
